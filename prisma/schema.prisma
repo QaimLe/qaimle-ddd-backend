@@ -1,9 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,11 +8,275 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        String   @id @default(uuid())
+  auth0Id   String   @unique
+  email            String    @unique
+  username         String
+  phone            String?   @unique
+  nickname         String?
+  fullName         String?
+  gender           String?
+  ageGroup         String?
+  nationality      String?
+  employmentSector String?
+  profession       String?
+  city             String?
+  personalEmail    String?
+  mobileVerified   Boolean   @default(false)
+  loyaltyTier      String?
+  subscriptionTier String?
+  profileStatus    String?   @default("pending")
+  createdAt        DateTime  @default(now())
 
-model Evaluation {
-  id         String   @id @default(uuid())
+  posts            Post[]
+  roles            UserRole[]
+  surveyResponses  SurveyResponse[]
+  evaluations      Evaluation[]
+  providerRequests ProviderRequest[]
+  providerVotes    ProviderVote[]
+  reviews          CompanySubmission[] @relation("UserReviews") // back-reference
+
+}
+
+model Role {
+  id          Int       @id @default(autoincrement())
+  name String @unique
+  description String?
+  users       UserRole[]
+}
+
+model UserRole {
+  userId    String
+  roleId    Int
+  assignedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  body      String?
+  userId    String
+  status    String?  @default("draft")
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Survey {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+
+  questions   SurveyQuestion[]
+  responses   SurveyResponse[]
+}
+
+model SurveyQuestion {
+  id           Int      @id @default(autoincrement())
+  surveyId     Int
+  questionText String
+  questionType String
+  isRequired   Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+
+  survey   Survey                 @relation(fields: [surveyId], references: [id])
+  options  SurveyQuestionOption[]
+  answers  SurveyAnswer[]
+}
+
+model SurveyQuestionOption {
+  id        Int      @id @default(autoincrement())
+  questionId Int
+  optionText String
+  optionValue String?
+  createdAt DateTime @default(now())
+
+  question SurveyQuestion @relation(fields: [questionId], references: [id])
+}
+
+model SurveyResponse {
+  id         Int       @id @default(autoincrement())
+  surveyId   Int
   userId     String
-  providerId String
-  score      Float
-  createdAt  DateTime @default(now())
+  submittedAt DateTime @default(now())
+
+  survey   Survey @relation(fields: [surveyId], references: [id])
+  user     User   @relation(fields: [userId], references: [id])
+  answers  SurveyAnswer[]
+}
+
+model SurveyAnswer {
+  id         Int       @id @default(autoincrement())
+  responseId Int
+  questionId Int
+  valueText  String?
+  createdAt  DateTime  @default(now())
+
+  response SurveyResponse  @relation(fields: [responseId], references: [id])
+  question SurveyQuestion  @relation(fields: [questionId], references: [id])
+}
+
+// Sectors
+model Sector {
+  id          Int                 @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime            @default(now())
+  providers   ServiceProvider[]
+  templates   EvaluationTemplate[]
+  requests    ProviderRequest[]
+  scores      EvaluationScore[]
+}
+
+// Service Providers
+model ServiceProvider {
+  id          Int       @id @default(autoincrement())
+  name        String
+  sectorId    Int
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  sector      Sector     @relation(fields: [sectorId], references: [id])
+  evaluations Evaluation[]
+  scores      EvaluationScore[]
+}
+
+// Evaluation Templates
+model EvaluationTemplate {
+  id         Int       @id @default(autoincrement())
+  sectorId   Int
+  version    Int
+  effectiveFrom DateTime
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+
+  sector     Sector               @relation(fields: [sectorId], references: [id])
+  categories EvaluationCategory[]
+  evaluations Evaluation[]
+}
+
+// Evaluation Categories
+model EvaluationCategory {
+  id         Int       @id @default(autoincrement())
+  templateId Int
+  title      String
+  weight     Float?
+  orderIndex Int?
+
+  template   EvaluationTemplate  @relation(fields: [templateId], references: [id])
+  criteria   EvaluationCriterion[]
+}
+
+// Evaluation Criteria
+model EvaluationCriterion {
+  id          Int       @id @default(autoincrement())
+  categoryId  Int
+  description String
+  inputType   String
+  orderIndex  Int?
+
+  category   EvaluationCategory  @relation(fields: [categoryId], references: [id])
+  answers    EvaluationAnswer[]
+}
+
+// Evaluations
+model Evaluation {
+  id          Int       @id @default(autoincrement())
+  userId      String
+  providerId  Int
+  templateId  Int
+  submittedAt DateTime  @default(now())
+  scorePercentage Float?
+  isFlagged   Boolean   @default(false)
+  isEdited    Boolean   @default(false)
+  editedAt    DateTime?
+  createdAt   DateTime  @default(now())
+
+  user       User               @relation(fields: [userId], references: [id])
+  provider   ServiceProvider    @relation(fields: [providerId], references: [id])
+  template   EvaluationTemplate @relation(fields: [templateId], references: [id])
+  answers    EvaluationAnswer[]
+}
+
+// Evaluation Answers
+model EvaluationAnswer {
+  id           Int      @id @default(autoincrement())
+  evaluationId Int
+  criterionId  Int
+  score        Int?
+  createdAt    DateTime @default(now())
+
+  evaluation Evaluation @relation(fields: [evaluationId], references: [id])
+  criterion  EvaluationCriterion @relation(fields: [criterionId], references: [id])
+}
+
+// Monthly Evaluation Scores
+model EvaluationScore {
+  id                     Int       @id @default(autoincrement())
+  providerId             Int
+  sectorId               Int
+  month                  DateTime
+  scorePercentage        Float
+  rankingPosition        Int?
+  totalProvidersInSector Int?
+  publishedAt            DateTime?
+
+  provider ServiceProvider @relation(fields: [providerId], references: [id])
+  sector   Sector          @relation(fields: [sectorId], references: [id])
+}
+
+// Provider Requests
+model ProviderRequest {
+  id             Int       @id @default(autoincrement())
+  sectorId       Int
+  providerName   String
+  submittedBy    String
+  status         String    @default("pending")
+  requestType    String
+  description    String?
+  votingLinkSlug String    @unique
+  createdAt      DateTime  @default(now())
+  approvedAt     DateTime?
+
+  sector Sector @relation(fields: [sectorId], references: [id])
+  submittedByUser User @relation(fields: [submittedBy], references: [id])
+  votes ProviderVote[]
+  companySubmission CompanySubmission?
+}
+
+// Provider Votes
+model ProviderVote {
+  id        Int       @id @default(autoincrement())
+  userId    String
+  votedAt   DateTime @default(now())
+requestId Int @unique
+request   ProviderRequest @relation(fields: [requestId], references: [id])
+  user    User            @relation(fields: [userId], references: [id])
+
+  @@unique([requestId, userId])
+}
+
+// Company Submissions
+model CompanySubmission {
+  id            Int       @id @default(autoincrement())
+  requestId     Int       @unique
+  companyName   String
+  website      String?
+  officialEmail String?
+  phoneNumber  String?
+  submittedAt  DateTime @default(now())
+  reviewedBy   String?
+  reviewStatus  String? @default("pending")
+  reviewedAt    DateTime?
+
+  request  ProviderRequest @relation(fields: [requestId], references: [id])
+  reviewer User?           @relation("UserReviews", fields: [reviewedBy], references: [id])
 }
