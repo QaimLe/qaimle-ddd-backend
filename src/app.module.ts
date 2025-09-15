@@ -11,7 +11,7 @@ import { PrismaModule } from './prisma/prisma.module'; // ✅ FIXED: import from
   imports: [
     ThrottlerModule.forRoot([{
       ttl: 60000,
-      limit: 50,
+      limit: 100,
       blockDuration: 120000,
     }]),
     PrismaModule,
