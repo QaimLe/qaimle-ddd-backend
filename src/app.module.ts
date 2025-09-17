@@ -8,6 +8,8 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module'; // ✅ FIXED: import from src
 import { UsersModule } from './core/applications/user/users.module'; // ✅ import your UsersModule
 import { AuthModule } from './auth/auth.module';
+import { Auth0Module } from './infrastructure/auth0/auth0.module';
+import { RolesModule } from './presentation/auth/roles.module';
 
 @Module({
   imports: [
@@ -17,8 +19,10 @@ import { AuthModule } from './auth/auth.module';
       blockDuration: 120000,
     }]),
     PrismaModule,
+    Auth0Module, // ✅ now your app can inject ROLE_PROVIDER
     AuthModule, // ✅ register AuthModule
     UsersModule, // ✅ register UsersModule here
+    RolesModule,
 
   ],
   controllers: [AppController],

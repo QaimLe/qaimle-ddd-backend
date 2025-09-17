@@ -4,10 +4,11 @@ import { type IUserRepository } from '../repositories/user.repository.interface'
 import { User } from '../entities/user.entity';
 import { Email } from '../value-objects/email.vo';
 import { UserId } from '..//value-objects/user-id.vo';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepo: IUserRepository) {}
+  constructor(private readonly userRepo: IUserRepository) { }
 
   async findOrCreate(auth0Payload: any): Promise<User> {
     let user = await this.userRepo.findByAuth0Id(auth0Payload.sub);
@@ -34,7 +35,7 @@ export class UserService {
 
   async updateRoles(auth0Id: string, roles: string[]): Promise<User> {
     const user = await this.userRepo.findByAuth0Id(auth0Id);
-    if (!user) throw new Error('User not found');
+    if (!user) throw new NotFoundException('User not found');
     roles.forEach((r) => user.addRole(r));
     return this.userRepo.update(user);
   }
