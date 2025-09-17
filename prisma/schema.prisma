@@ -28,7 +28,6 @@ model User {
   subscriptionTier String?
   profileStatus    String?   @default("pending")
   createdAt        DateTime  @default(now())
-
   posts            Post[]
   roles            UserRole[]
   surveyResponses  SurveyResponse[]
