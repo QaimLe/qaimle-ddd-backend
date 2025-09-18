@@ -6,10 +6,10 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module'; // ✅ FIXED: import from src
-import { UsersModule } from './core/applications/user/users.module'; // ✅ import your UsersModule
+import { UsersModule } from './interface/http/users.module'; // ✅ import your UsersModule
 import { AuthModule } from './auth/auth.module';
 import { Auth0Module } from './infrastructure/auth0/auth0.module';
-import { RolesModule } from './presentation/auth/roles.module';
+import { RolesModule } from './interface/auth/roles.module';
 
 @Module({
   imports: [

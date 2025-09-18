@@ -1,31 +1,29 @@
-// interface/http/user.controller.ts
-import { Controller, Get, Req, Patch, Body, UseGuards } from '@nestjs/common';
+// src/application/user/user.controller.ts
+import { Controller, Post, Get , Body, UseGuards, Req } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../../auth/roles.guard';
-import { Roles } from '../../auth/roles.decorator';
-import { UserService } from '../../core/domain/user/services/user.service';
+import { SyncUserUseCase } from '../../core/applications/user/sync-user.usecase';
 
 @Controller('users')
-export class UserController {
-  constructor(private readonly userService: UserService) {}
+export class UsersController {
+    constructor(private readonly syncUserUseCase: SyncUserUseCase) { }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('me')
-  async getMe(@Req() req) {
-    return this.userService.findOrCreate(req.user);
-  }
+    @UseGuards(AuthGuard('jwt'))
+    @Post('sync')
+    async sync(
+        @Body() body: { sub: string; email: string; name?: string },
+        @Req() req: any,
+    ) {
+        console.log('📦 UsersController.sync called');
+        console.log('Headers:', req.headers);
+        console.log('Body:', body);
+        return await this.syncUserUseCase.execute(body);
+    }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles('admin')
-  @Get()
-  async getAllUsers() {
-    return this.userService.getAllUsers();
-  }
-
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles('admin')
-  @Patch(':auth0Id/roles')
-  async updateRoles(@Req() req, @Body() body: { roles: string[] }) {
-    return this.userService.updateRoles(req.params.auth0Id, body.roles);
-  }
+    @UseGuards(AuthGuard('jwt'))
+    @Get('debug-token')
+    debug(@Req() req: any) {
+        console.log('📢 /users/debug-token headers:', req.headers);
+        console.log('📢 /users/debug-token user:', req.user); // set by JwtStrategy
+        return { message: 'Token received', user: req.user };
+    }
 }
