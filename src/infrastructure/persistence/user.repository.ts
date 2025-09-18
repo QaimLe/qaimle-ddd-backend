@@ -23,7 +23,9 @@ export class UserRepository implements IUserRepository {
         const u = await this.prisma.user.findUnique({ where: { id: id.getValue() } });
         return u ? this.toDomain(u) : null;
     }
-
+    async delete(id: string): Promise<void> {
+        await this.prisma.user.delete({ where: { id } });
+    }
     async create(user: User): Promise<User> {
         const roleNames = user.getRoles(); // ['admin', 'user', ...]
 

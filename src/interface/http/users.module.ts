@@ -1,14 +1,22 @@
-// src/core-application/user/user.module.ts
 import { Module } from '@nestjs/common';
 import { UsersController } from './user.controller';
 import { SyncUserUseCase } from '../../core/applications/user/sync-user.usecase';
+import { GetAllUsersUseCase } from '../../core/applications/user/get-all-users.usecase';
+import { GetUserByIdUseCase } from '../../core/applications/user/get-user-by-id.usecase';
+import { UpdateUserUseCase } from '../../core/applications/user/update-user.usecase';
+import { DeleteUserUseCase } from '../../core/applications/user/delete-user.usecase';
 import { UserRepository } from '../../infrastructure/persistence/user.repository';
-import { NotificationModule } from '../notification/notification.module';
+
 @Module({
     controllers: [UsersController],
-    providers: [SyncUserUseCase, UserRepository],
-    imports: [NotificationModule], // ✅ brings SendNotificationUseCase into scope
-
-    exports: [UserRepository, SyncUserUseCase],
+    providers: [
+        SyncUserUseCase,
+        GetAllUsersUseCase,
+        GetUserByIdUseCase,
+        UpdateUserUseCase,
+        DeleteUserUseCase,
+        UserRepository,
+    ],
+    exports: [UserRepository],
 })
 export class UsersModule { }
