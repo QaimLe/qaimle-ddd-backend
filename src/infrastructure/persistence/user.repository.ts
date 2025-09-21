@@ -19,13 +19,21 @@ export class UserRepository implements IUserRepository {
         return u ? this.toDomain(u) : null;
     }
 
-    async findById(id: UserId): Promise<User | null> {
-        const u = await this.prisma.user.findUnique({ where: { id: id.getValue() } });
+    async findById(id: string): Promise<User | null> {
+        const idValue =  new UserId(id).getValue();
+        const u = await this.prisma.user.findUnique({  where: { id: idValue },
+            select: { id: true, fullName: true, username: true, auth0Id: true, email: true, roles: true, deletedAt: true, createdAt: true },  });
         return u ? this.toDomain(u) : null;
     }
     async delete(id: string): Promise<void> {
-        await this.prisma.user.delete({ where: { id } });
+        const idValue = new UserId(id).getValue();
+
+        await this.prisma.user.update({
+            where: { id: idValue },
+            data: { deletedAt: new Date() }, // set soft delete timestamp
+        });
     }
+
     async create(user: User): Promise<User> {
         const roleNames = user.getRoles(); // ['admin', 'user', ...]
 
@@ -110,9 +118,17 @@ export class UserRepository implements IUserRepository {
         return this.toDomain(u);
     }
 
-    async findAll(): Promise<User[]> {
-        const users = await this.prisma.user.findMany();
-        return users.map((u) => this.toDomain(u));
+    async findActiveUsers(take: number, cursor?: string): Promise<User[]> {
+        const users = await this.prisma.user.findMany({
+            where: { deletedAt: null },
+            take,
+            skip: cursor ? 1 : 0,
+            cursor: cursor ? { id: cursor } : undefined,
+            select: { id: true, fullName: true,
+                username: true, 
+                auth0Id: true, email: true, roles: true, createdAt: true }, // projection
+            orderBy: { createdAt: 'desc' },
+        }); return users.map((u) => this.toDomain(u));
     }
 
     private toDomain(u: any): User {

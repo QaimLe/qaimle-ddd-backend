@@ -24,6 +24,8 @@ export class User {
     private profileStatus: string = 'pending',
     private roles: string[] = ['user'],
     private createdAt: Date = new Date(),
+    private updatedAt?: Date,
+    private deletedAt?: Date,
   ) { }
 
   // --- Getters ---

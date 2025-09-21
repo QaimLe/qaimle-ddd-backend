@@ -30,7 +30,7 @@ export class UserService {
   }
 
   async getAllUsers(): Promise<User[]> {
-    return this.userRepo.findAll();
+    return this.userRepo.findActiveUsers(5);
   }
 
   async updateRoles(auth0Id: string, roles: string[]): Promise<User> {
