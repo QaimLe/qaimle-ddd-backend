@@ -35,14 +35,42 @@ model User {
   providerRequests ProviderRequest[]
   providerVotes    ProviderVote[]
   reviews          CompanySubmission[] @relation("UserReviews") // back-reference
+  
+  pointsBalance   Int      @default(0)  // quick lookup
+  transactions    PointsTransaction[]
 
+  userRewards      UserReward[]
+deletedAt DateTime? // no default needed, NULL by default
+}
+
+
+model Permission {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?
+  roles       RolePermission[] // back relation
+deletedAt DateTime? // no default needed, NULL by default
+}
+
+model RolePermission {
+  permissionId Int
+  roleId       Int
+  assignedAt   DateTime @default(now())
+
+  role        Role       @relation(fields: [roleId], references: [id])
+  permission  Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([permissionId, roleId]) // composite primary key
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 model Role {
-  id          Int       @id @default(autoincrement())
-  name String @unique
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
   description String?
-  users       UserRole[]
+  users       UserRole[]       // assuming you have UserRole somewhere
+  permissions RolePermission[] // back relation
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 model UserRole {
@@ -54,6 +82,7 @@ model UserRole {
   role Role @relation(fields: [roleId], references: [id])
 
   @@id([userId, roleId])
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 model Post {
@@ -65,6 +94,7 @@ model Post {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 model Survey {
@@ -75,6 +105,7 @@ model Survey {
 
   questions   SurveyQuestion[]
   responses   SurveyResponse[]
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 model SurveyQuestion {
@@ -88,6 +119,7 @@ model SurveyQuestion {
   survey   Survey                 @relation(fields: [surveyId], references: [id])
   options  SurveyQuestionOption[]
   answers  SurveyAnswer[]
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 model SurveyQuestionOption {
@@ -98,6 +130,7 @@ model SurveyQuestionOption {
   createdAt DateTime @default(now())
 
   question SurveyQuestion @relation(fields: [questionId], references: [id])
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 model SurveyResponse {
@@ -109,6 +142,7 @@ model SurveyResponse {
   survey   Survey @relation(fields: [surveyId], references: [id])
   user     User   @relation(fields: [userId], references: [id])
   answers  SurveyAnswer[]
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 model SurveyAnswer {
@@ -120,6 +154,7 @@ model SurveyAnswer {
 
   response SurveyResponse  @relation(fields: [responseId], references: [id])
   question SurveyQuestion  @relation(fields: [questionId], references: [id])
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Sectors
@@ -132,6 +167,7 @@ model Sector {
   templates   EvaluationTemplate[]
   requests    ProviderRequest[]
   scores      EvaluationScore[]
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Service Providers
@@ -146,6 +182,7 @@ model ServiceProvider {
   sector      Sector     @relation(fields: [sectorId], references: [id])
   evaluations Evaluation[]
   scores      EvaluationScore[]
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Evaluation Templates
@@ -160,6 +197,7 @@ model EvaluationTemplate {
   sector     Sector               @relation(fields: [sectorId], references: [id])
   categories EvaluationCategory[]
   evaluations Evaluation[]
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Evaluation Categories
@@ -172,6 +210,7 @@ model EvaluationCategory {
 
   template   EvaluationTemplate  @relation(fields: [templateId], references: [id])
   criteria   EvaluationCriterion[]
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Evaluation Criteria
@@ -184,6 +223,7 @@ model EvaluationCriterion {
 
   category   EvaluationCategory  @relation(fields: [categoryId], references: [id])
   answers    EvaluationAnswer[]
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Evaluations
@@ -203,6 +243,7 @@ model Evaluation {
   provider   ServiceProvider    @relation(fields: [providerId], references: [id])
   template   EvaluationTemplate @relation(fields: [templateId], references: [id])
   answers    EvaluationAnswer[]
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Evaluation Answers
@@ -215,6 +256,7 @@ model EvaluationAnswer {
 
   evaluation Evaluation @relation(fields: [evaluationId], references: [id])
   criterion  EvaluationCriterion @relation(fields: [criterionId], references: [id])
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Monthly Evaluation Scores
@@ -230,6 +272,7 @@ model EvaluationScore {
 
   provider ServiceProvider @relation(fields: [providerId], references: [id])
   sector   Sector          @relation(fields: [sectorId], references: [id])
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Provider Requests
@@ -249,19 +292,23 @@ model ProviderRequest {
   submittedByUser User @relation(fields: [submittedBy], references: [id])
   votes ProviderVote[]
   companySubmission CompanySubmission?
+deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Provider Votes
 model ProviderVote {
   id        Int       @id @default(autoincrement())
   userId    String
-  votedAt   DateTime @default(now())
-requestId Int @unique
-request   ProviderRequest @relation(fields: [requestId], references: [id])
+  votedAt   DateTime  @default(now())
+  requestId Int
+
+  request ProviderRequest @relation(fields: [requestId], references: [id])
   user    User            @relation(fields: [userId], references: [id])
 
-  @@unique([requestId, userId])
+  @@unique([requestId, userId]) // ensure one vote per user per request
+deletedAt DateTime? // no default needed, NULL by default
 }
+
 
 // Company Submissions
 model CompanySubmission {
@@ -278,4 +325,64 @@ model CompanySubmission {
 
   request  ProviderRequest @relation(fields: [requestId], references: [id])
   reviewer User?           @relation("UserReviews", fields: [reviewedBy], references: [id])
+deletedAt DateTime? // no default needed, NULL by default
 }
+
+
+model PointsRule {
+  id          String   @id @default(uuid())
+  action      String   // e.g. "COMPLETE_EVALUATION", "COMPLETE_SURVEY"
+  points      Int
+  description String?  // human-readable explanation
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  transactions PointsTransaction[]
+deletedAt DateTime? // no default needed, NULL by default
+}
+
+
+model PointsTransaction {
+  id         String   @id @default(uuid())
+  userId     String
+  ruleId     String
+  points     Int
+  reason     String?  // extra notes like "Evaluation ID: xyz"
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user       User        @relation(fields: [userId], references: [id])
+  rule       PointsRule  @relation(fields: [ruleId], references: [id])
+deletedAt DateTime? // no default needed, NULL by default
+}
+
+
+model Reward {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  costPoints  Int      // how many points needed
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  userRewards UserReward[] // 👈 opposite side of relation
+
+deletedAt DateTime? // no default needed, NULL by default
+}
+
+
+model UserReward {
+  id         String   @id @default(uuid())
+  userId     String
+  rewardId   String
+  redeemedAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  reward Reward @relation(fields: [rewardId], references: [id])
+deletedAt DateTime? // no default needed, NULL by default
+}
+
+CREATE INDEX idx_users_deletedat ON "User"(deletedAt);
