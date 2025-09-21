@@ -197,7 +197,7 @@ model EvaluationTemplate {
   sector     Sector               @relation(fields: [sectorId], references: [id])
   categories EvaluationCategory[]
   evaluations Evaluation[]
-deletedAt DateTime? // no default needed, NULL by default
+  deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Evaluation Categories

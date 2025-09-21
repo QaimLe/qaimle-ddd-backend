@@ -10,7 +10,8 @@ import { UsersModule } from './interface/http/users.module'; // ✅ import your 
 import { AuthModule } from './auth/auth.module';
 import { Auth0Module } from './infrastructure/auth0/auth0.module';
 import { RolesModule } from './interface/auth/roles.module';
-
+import { EvaluationTemplateModule } from './interface/http/evaluation-template.module';
+import { EvaluationModule } from './interface/http/evaluation.module';
 @Module({
   imports: [
     ThrottlerModule.forRoot([{
@@ -23,6 +24,8 @@ import { RolesModule } from './interface/auth/roles.module';
     AuthModule, // ✅ register AuthModule
     UsersModule, // ✅ register UsersModule here
     RolesModule,
+    EvaluationTemplateModule,
+    EvaluationModule,
 
   ],
   controllers: [AppController],
