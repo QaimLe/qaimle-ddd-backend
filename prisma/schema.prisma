@@ -219,19 +219,33 @@ deletedAt DateTime? // no default needed, NULL by default
 
 model EvaluationQuestion {
   id          String   @id @default(uuid())
-  criterionId Int
+  criterionId String
   text        String
   weight      Float
   inputType   String
   orderIndex  Int?
   criterion   EvaluationCriterion @relation(fields: [criterionId], references: [id], name: "CriterionQuestions")
   answers     EvaluationAnswer[]  @relation("QuestionAnswers")
+  options     EvaluationQuestionOption[]   // 👈 reverse relation
+
+
   deletedAt   DateTime?
 }
 
+model EvaluationQuestionOption {
+  id          String   @id @default(uuid())
+  questionId  String
+  text        String
+  value       Int?
+  orderIndex  Int?
+
+  question    EvaluationQuestion @relation(fields: [questionId], references: [id])
+}
+
+
 
 model EvaluationCriterion {
-  id          Int                 @id @default(autoincrement())
+  id          String   @id @default(uuid())
   categoryId  Int
   description String
   inputType   String
@@ -259,8 +273,9 @@ model Evaluation {
   user       User               @relation(fields: [userId], references: [id])
   provider   ServiceProvider    @relation(fields: [providerId], references: [id])
   template   EvaluationTemplate @relation(fields: [templateId], references: [id])
+  
   answers    EvaluationAnswer[]
-deletedAt DateTime? // no default needed, NULL by default
+  deletedAt DateTime? // no default needed, NULL by default
 }
 
 model EvaluationAnswer {
