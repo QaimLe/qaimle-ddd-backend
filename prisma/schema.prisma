@@ -40,7 +40,11 @@ model User {
   transactions    PointsTransaction[]
 
   userRewards      UserReward[]
-deletedAt DateTime? // no default needed, NULL by default
+
+
+  deletedAt DateTime? // no default needed, NULL by default
+  @@index([deletedAt], name: "idx_users_deletedat")
+
 }
 
 
@@ -213,22 +217,35 @@ model EvaluationCategory {
 deletedAt DateTime? // no default needed, NULL by default
 }
 
-// Evaluation Criteria
+model EvaluationQuestion {
+  id          String   @id @default(uuid())
+  criterionId Int
+  text        String
+  weight      Float
+  inputType   String
+  orderIndex  Int?
+  criterion   EvaluationCriterion @relation(fields: [criterionId], references: [id], name: "CriterionQuestions")
+  answers     EvaluationAnswer[]  @relation("QuestionAnswers")
+  deletedAt   DateTime?
+}
+
+
 model EvaluationCriterion {
-  id          Int       @id @default(autoincrement())
+  id          Int                 @id @default(autoincrement())
   categoryId  Int
   description String
   inputType   String
   orderIndex  Int?
 
-  category   EvaluationCategory  @relation(fields: [categoryId], references: [id])
-  answers    EvaluationAnswer[]
-deletedAt DateTime? // no default needed, NULL by default
+  category    EvaluationCategory  @relation(fields: [categoryId], references: [id])
+  questions   EvaluationQuestion[] @relation("CriterionQuestions")
+  deletedAt   DateTime?
 }
+
 
 // Evaluations
 model Evaluation {
-  id          Int       @id @default(autoincrement())
+  id          String       @id
   userId      String
   providerId  Int
   templateId  Int
@@ -246,18 +263,18 @@ model Evaluation {
 deletedAt DateTime? // no default needed, NULL by default
 }
 
-// Evaluation Answers
 model EvaluationAnswer {
-  id           Int      @id @default(autoincrement())
-  evaluationId Int
-  criterionId  Int
-  score        Int?
-  createdAt    DateTime @default(now())
+  id          String    @id
+  questionId  String?
+  evaluationId String
+  score       Int?
+  createdAt   DateTime @default(now())
+  deletedAt   DateTime?
 
-  evaluation Evaluation @relation(fields: [evaluationId], references: [id])
-  criterion  EvaluationCriterion @relation(fields: [criterionId], references: [id])
-deletedAt DateTime? // no default needed, NULL by default
+  question    EvaluationQuestion? @relation(fields: [questionId], references: [id], name: "QuestionAnswers")
+  evaluation  Evaluation          @relation(fields: [evaluationId], references: [id])
 }
+
 
 // Monthly Evaluation Scores
 model EvaluationScore {
@@ -385,4 +402,3 @@ model UserReward {
 deletedAt DateTime? // no default needed, NULL by default
 }
 
-CREATE INDEX idx_users_deletedat ON "User"(deletedAt);
