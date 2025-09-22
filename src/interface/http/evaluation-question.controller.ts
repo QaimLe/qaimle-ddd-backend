@@ -22,6 +22,19 @@ export class EvaluationQuestionController {
         };
     }
 
+    @Get()
+    async findAll() {
+        const questions = await this.questionRepo.findAll();
+        return questions.map(q => ({
+            id: EvaluationQuestionId.fromString(q.id.toString()),
+            criterionId: EvaluationCriterionId.fromString(q.criterionId.toString()),
+            text: q.text,
+            weight: q.weight,
+            inputType: q.inputType,
+            orderIndex: q.orderIndex,
+        }))
+    }
+
     @Get('criterion/:criterionId')
     async findByCriterionId(@Param('criterionId') criterionId: string) {
         const questions = await this.questionRepo.findByCriterionId(criterionId);

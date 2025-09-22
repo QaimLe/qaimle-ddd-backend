@@ -12,6 +12,10 @@ import { Auth0Module } from './infrastructure/auth0/auth0.module';
 import { RolesModule } from './interface/auth/roles.module';
 import { EvaluationTemplateModule } from './interface/http/evaluation-template.module';
 import { EvaluationModule } from './interface/http/evaluation.module';
+import { EvaluationAnswerModule } from './interface/http/evaluation-answer.module';
+import { EvaluationCategoryModule } from './interface/http/evaluation-category.module';
+import { EvaluationQuestionModule } from './interface/http/evaluation-question.module';
+
 @Module({
   imports: [
     ThrottlerModule.forRoot([{
@@ -26,6 +30,10 @@ import { EvaluationModule } from './interface/http/evaluation.module';
     RolesModule,
     EvaluationTemplateModule,
     EvaluationModule,
+    EvaluationAnswerModule,
+    EvaluationCategoryModule,
+    EvaluationQuestionModule,
+
 
   ],
   controllers: [AppController],
