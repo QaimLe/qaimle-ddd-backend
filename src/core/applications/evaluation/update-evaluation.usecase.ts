@@ -6,7 +6,7 @@ import { EvaluationRepository } from '../../../infrastructure/persistence/evalua
 export class UpdateEvaluationUseCase {
     constructor(private readonly repo: EvaluationRepository) { }
 
-    async execute(id: number, data: Partial<Evaluation>): Promise<Evaluation> {
+    async execute(id: string, data: Partial<Evaluation>): Promise<Evaluation> {
         return this.repo.update(id, data);
     }
 }

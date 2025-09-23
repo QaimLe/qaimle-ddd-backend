@@ -24,6 +24,7 @@ export class EvaluationTemplateController {
             isActive?: boolean;
         },
     ): Promise<EvaluationTemplate> {
+        console.log("body:", body);
         return this.createUseCase.execute({
             sectorId: body.sectorId,
             version: body.version,

@@ -6,11 +6,16 @@ import { GetEvaluationUseCase } from '../../core/applications/evaluation/get-eva
 import { GetAllEvaluationsUseCase } from '../../core/applications/evaluation/get-all-evaluations.usecase';
 import { UpdateEvaluationUseCase } from '../../core/applications/evaluation/update-evaluation.usecase';
 import { DeleteEvaluationUseCase } from '../../core/applications/evaluation/delete-evaluation.usecase';
-// import { CalculateScoreUseCase } from '../../core/applications/evaluation/calculate-score.usecase';
+import { CalculateScoreUseCase } from '../../core/applications/evaluation/calculate-score.usecase';
 import { FlagEvaluationUseCase } from '../../core/applications/evaluation/flag-evaluation.usecase';
 // import { EditEvaluationUseCase } from '../../core/applications/evaluation/edit-evaluation.usecase';
-
+import { EvaluationQuestionModule } from './evaluation-question.module';
+import { EvaluationQuestionOptionModule } from './evaluation-question-option.module';
 @Module({
+    imports: [
+        EvaluationQuestionModule,      
+        EvaluationQuestionOptionModule 
+    ],
     controllers: [EvaluationController],
     providers: [
         EvaluationRepository,
@@ -19,7 +24,7 @@ import { FlagEvaluationUseCase } from '../../core/applications/evaluation/flag-e
         GetAllEvaluationsUseCase,
         UpdateEvaluationUseCase,
         DeleteEvaluationUseCase,
-        // CalculateScoreUseCase,
+        CalculateScoreUseCase,
         FlagEvaluationUseCase,
         // EditEvaluationUseCase,
     ],

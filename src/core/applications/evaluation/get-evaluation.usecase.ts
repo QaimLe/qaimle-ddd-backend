@@ -6,7 +6,7 @@ import { EvaluationRepository } from '../../../infrastructure/persistence/evalua
 export class GetEvaluationUseCase {
     constructor(private readonly repo: EvaluationRepository) { }
 
-    async execute(id: number): Promise<Evaluation | null> {
+    async execute(id: string): Promise<Evaluation | null> {
         return this.repo.findById(id);
     }
 }

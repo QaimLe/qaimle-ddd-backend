@@ -5,10 +5,10 @@ import { GetEvaluationUseCase } from '../../core/applications/evaluation/get-eva
 import { GetAllEvaluationsUseCase } from '../../core/applications/evaluation/get-all-evaluations.usecase';
 import { UpdateEvaluationUseCase } from '../../core/applications/evaluation/update-evaluation.usecase';
 import { DeleteEvaluationUseCase } from '../../core/applications/evaluation/delete-evaluation.usecase';
-// import { CalculateScoreUseCase } from '../../core/applications/evaluation/calculate-score.usecase';
+import { CalculateScoreUseCase } from '../../core/applications/evaluation/calculate-score.usecase';
 import { FlagEvaluationUseCase } from '../../core/applications/evaluation/flag-evaluation.usecase';
 // import { EditEvaluationUseCase } from '../../core/applications/evaluation/edit-evaluation.usecase';
-
+import { EvaluationAnswer } from 'src/core/domain/evaluation-answer/entities/evaluation-answer.entity';
 @Controller('evaluations')
 export class EvaluationController {
     constructor(
@@ -17,7 +17,7 @@ export class EvaluationController {
         private readonly getAllUseCase: GetAllEvaluationsUseCase,
         private readonly updateUseCase: UpdateEvaluationUseCase,
         private readonly deleteUseCase: DeleteEvaluationUseCase,
-        // private readonly calcScoreUseCase: CalculateScoreUseCase,
+        private readonly calcScoreUseCase: CalculateScoreUseCase,
         private readonly flagUseCase: FlagEvaluationUseCase,
         // private readonly editUseCase: EditEvaluationUseCase,
     ) { }
@@ -31,7 +31,7 @@ export class EvaluationController {
         isFlagged: boolean;
         createdAt: Date;
         isEdited: boolean;
-        // answers: { criterionId: number; score: number }[];
+        answers: EvaluationAnswer[];
     }): Promise<Evaluation> {
         return this.createUseCase.execute(body);
     }
@@ -43,12 +43,18 @@ export class EvaluationController {
 
     @Get(':id')
     async findOne(@Param('id') id: string): Promise<Evaluation | null> {
-        return this.getOneUseCase.execute(Number(id));
+        return this.getOneUseCase.execute(id);
     }
 
     @Put(':id')
     async update(@Param('id') id: string, @Body() body: Partial<Evaluation>): Promise<Evaluation> {
-        return this.updateUseCase.execute(Number(id), body);
+        return this.updateUseCase.execute(id, body);
+    }
+
+    @Post(':id/calculate-score')
+    async calculateScore(@Param('id') id: string): Promise<{ score: number }> {
+        const score = await this.calcScoreUseCase.execute(id);
+        return { score };
     }
 
     @Delete(':id')
@@ -56,15 +62,9 @@ export class EvaluationController {
         return this.deleteUseCase.execute(Number(id));
     }
 
-    // @Post(':id/calculate-score')
-    // async calculateScore(@Param('id') id: string): Promise<{ score: number }> {
-    //     const score = await this.calcScoreUseCase.execute(Number(id));
-    //     return { score };
-    // }
-
     @Post(':id/flag')
     async flag(@Param('id') id: string): Promise<void> {
-        return this.flagUseCase.execute(Number(id));
+        return this.flagUseCase.execute(id);
     }
 
     // @Put(':id/edit')

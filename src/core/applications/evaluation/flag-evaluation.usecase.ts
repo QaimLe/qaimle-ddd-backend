@@ -5,7 +5,7 @@ import { EvaluationRepository } from '../../../infrastructure/persistence/evalua
 export class FlagEvaluationUseCase {
     constructor(private readonly repo: EvaluationRepository) { }
 
-    async execute(id: number): Promise<void> {
+    async execute(id: string): Promise<void> {
         await this.repo.update(id, { isFlagged: true });
     }
 }
