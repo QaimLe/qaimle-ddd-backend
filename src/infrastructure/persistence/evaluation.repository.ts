@@ -11,7 +11,6 @@ export class EvaluationRepository {
         userId: string;
         providerId: number;
         templateId: number;
-        // answers: { criterionId: number; score: number }[];
     }): Promise<Evaluation> {
         const evaluation = await this.prisma.evaluation.create({
             data: {
@@ -26,9 +25,9 @@ export class EvaluationRepository {
         return evaluation as unknown as Evaluation;
     }
 
-    async findById(id: number): Promise<Evaluation | null> {
+    async findById(id: string): Promise<Evaluation | null> {
         return this.prisma.evaluation.findFirst({
-            where: { id : id.toString(), deletedAt: null },
+            where: { id: id.toString(), deletedAt: null },
             include: { answers: true },
         }) as unknown as Evaluation | null;
     }
@@ -39,14 +38,36 @@ export class EvaluationRepository {
             include: { answers: true },
         }) as unknown as Evaluation[];
     }
+    async findByIdWithAnswers(id: string): Promise<Evaluation | null> {
+        return this.prisma.evaluation.findFirst({
+            where: { id, deletedAt: null },
+            include: {
+                answers: {
+                    include: {
+                        question: true, // load the question entity
+                        // selectedOption: true // if you have a selectedOption relation
+                    },
+                },
+            },
+        }) as unknown as Evaluation | null;
+    }
 
-    async update(id: number, data: any): Promise<Evaluation> {
+
+    // async update(id: number, data: any): Promise<Evaluation> {
+    //     return this.prisma.evaluation.update({
+    //         where: { id: id.toString() },
+    //         data,
+    //         include: { answers: true },
+    //     }) as unknown as Evaluation;
+    // }
+    async update(id: string, data: any): Promise<Evaluation> {
         return this.prisma.evaluation.update({
-            where: { id: id.toString() },
+            where: { id },
             data,
             include: { answers: true },
         }) as unknown as Evaluation;
     }
+
 
     async softDelete(id: number): Promise<void> {
         await this.prisma.evaluation.update({

@@ -15,6 +15,8 @@ import { EvaluationModule } from './interface/http/evaluation.module';
 import { EvaluationAnswerModule } from './interface/http/evaluation-answer.module';
 import { EvaluationCategoryModule } from './interface/http/evaluation-category.module';
 import { EvaluationQuestionModule } from './interface/http/evaluation-question.module';
+import { EvaluationQuestionOptionModule } from './interface/http/evaluation-question-option.module';
+import { EvaluationScoreModule } from './interface/http/evaluation-score.module';
 
 @Module({
   imports: [
@@ -24,16 +26,17 @@ import { EvaluationQuestionModule } from './interface/http/evaluation-question.m
       blockDuration: 120000,
     }]),
     PrismaModule,
-    Auth0Module, // ✅ now your app can inject ROLE_PROVIDER
-    AuthModule, // ✅ register AuthModule
-    UsersModule, // ✅ register UsersModule here
+    Auth0Module, 
+    AuthModule, 
+    UsersModule,
     RolesModule,
     EvaluationTemplateModule,
     EvaluationModule,
     EvaluationAnswerModule,
     EvaluationCategoryModule,
     EvaluationQuestionModule,
-
+    EvaluationQuestionOptionModule,
+    EvaluationScoreModule
 
   ],
   controllers: [AppController],

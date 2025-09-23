@@ -217,20 +217,7 @@ model EvaluationCategory {
 deletedAt DateTime? // no default needed, NULL by default
 }
 
-model EvaluationQuestion {
-  id          String   @id @default(uuid())
-  criterionId String
-  text        String
-  weight      Float
-  inputType   String
-  orderIndex  Int?
-  criterion   EvaluationCriterion @relation(fields: [criterionId], references: [id], name: "CriterionQuestions")
-  answers     EvaluationAnswer[]  @relation("QuestionAnswers")
-  options     EvaluationQuestionOption[]   // 👈 reverse relation
 
-
-  deletedAt   DateTime?
-}
 
 model EvaluationQuestionOption {
   id          String   @id @default(uuid())
@@ -238,6 +225,7 @@ model EvaluationQuestionOption {
   text        String
   value       Int?
   orderIndex  Int?
+  deletedAt   DateTime?
 
   question    EvaluationQuestion @relation(fields: [questionId], references: [id])
 }
@@ -289,7 +277,20 @@ model EvaluationAnswer {
   question    EvaluationQuestion? @relation(fields: [questionId], references: [id], name: "QuestionAnswers")
   evaluation  Evaluation          @relation(fields: [evaluationId], references: [id])
 }
+model EvaluationQuestion {
+  id          String   @id @default(uuid())
+  criterionId String
+  text        String
+  weight      Float
+  inputType   String
+  orderIndex  Int?
+  criterion   EvaluationCriterion @relation(fields: [criterionId], references: [id], name: "CriterionQuestions")
+  answers     EvaluationAnswer[]  @relation("QuestionAnswers")
+  options     EvaluationQuestionOption[]   // 👈 reverse relation
 
+
+  deletedAt   DateTime?
+}
 
 // Monthly Evaluation Scores
 model EvaluationScore {
@@ -324,7 +325,7 @@ model ProviderRequest {
   submittedByUser User @relation(fields: [submittedBy], references: [id])
   votes ProviderVote[]
   companySubmission CompanySubmission?
-deletedAt DateTime? // no default needed, NULL by default
+  deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Provider Votes
@@ -338,7 +339,7 @@ model ProviderVote {
   user    User            @relation(fields: [userId], references: [id])
 
   @@unique([requestId, userId]) // ensure one vote per user per request
-deletedAt DateTime? // no default needed, NULL by default
+  deletedAt DateTime? // no default needed, NULL by default
 }
 
 

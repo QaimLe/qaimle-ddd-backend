@@ -8,6 +8,10 @@ export class EvaluationQuestionId {
         return new EvaluationQuestionId(uuidv4());
     }
 
+    getValue(): string {
+        return this.value;
+    }
+
     static fromString(id: string): EvaluationQuestionId {
         if (!uuidValidate(id)) throw new Error(`Invalid EvaluationQuestionId: ${id}`);
         return new EvaluationQuestionId(id);

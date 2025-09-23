@@ -39,6 +39,23 @@ export class EvaluationQuestionRepository {
         );
     }
 
+    async findById(id: string): Promise<EvaluationQuestion | null> {
+        const record = await this.prisma.evaluationQuestion.findUnique({ where: { id } });
+        return record ? EvaluationQuestion.create({
+            id: EvaluationQuestionId.fromString(record.id),
+            criterionId: EvaluationCriterionId.fromString(record.criterionId.toString()),
+            text: record.text,
+            weight: record.weight,
+            inputType: record.inputType,
+            orderIndex: record.orderIndex ?? undefined,
+            deletedAt: record.deletedAt ?? null,
+        }) : null;
+    }
+
+    async softDelete(id: string): Promise<void> {
+        await this.prisma.evaluationQuestion.update({ where: { id }, data: { deletedAt: new Date() } });
+    }
+
     async findAll(): Promise<EvaluationQuestion[]> {
         const questions = await this.prisma.evaluationQuestion.findMany();
 
