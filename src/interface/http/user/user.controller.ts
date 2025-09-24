@@ -1,14 +1,14 @@
 import { Controller, Post, Get, Put, Delete, Param, Body, UseGuards, Req } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { SyncUserUseCase } from '../../core/applications/user/sync-user.usecase';
-import { GetAllUsersUseCase } from '../../core/applications/user/get-all-users.usecase';
-import { GetUserByIdUseCase } from '../../core/applications/user/get-user-by-id.usecase';
-import { UpdateUserUseCase } from '../../core/applications/user/update-user.usecase';
-import { DeleteUserUseCase } from '../../core/applications/user/delete-user.usecase';
-import { RolesGuard } from '../../auth/roles.guard';
-import { Roles } from '../../auth/roles.decorator';
-import { PermissionsGuard } from '../../auth/permissions.guard';
-import { Permissions } from '../../auth/permissions.decorator';
+import { SyncUserUseCase } from '../../../core/applications/user/sync-user.usecase';
+import { GetAllUsersUseCase } from '../../../core/applications/user/get-all-users.usecase';
+import { GetUserByIdUseCase } from '../../../core/applications/user/get-user-by-id.usecase';
+import { UpdateUserUseCase } from '../../../core/applications/user/update-user.usecase';
+import { DeleteUserUseCase } from '../../../core/applications/user/delete-user.usecase';
+import { RolesGuard } from '../../../auth/roles.guard';
+import { Roles } from '../../../auth/roles.decorator';
+import { PermissionsGuard } from '../../../auth/permissions.guard';
+import { Permissions } from '../../../auth/permissions.decorator';
 import { UserId } from 'src/core/domain/user/value-objects/user-id.vo';
 
 
@@ -32,7 +32,7 @@ export class UsersController {
     @Permissions('read:users') // must also have this permission
     @Get()
     async getAll() {
-        return this.getAllUsersUseCase.execute( 10, undefined);
+        return this.getAllUsersUseCase.execute(10, undefined);
     }
 
     @Get(':id')

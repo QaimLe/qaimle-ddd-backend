@@ -6,17 +6,17 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module'; // ✅ FIXED: import from src
-import { UsersModule } from './interface/http/users.module'; // ✅ import your UsersModule
+import { UsersModule } from './interface/http/user/users.module'; // ✅ import your UsersModule
 import { AuthModule } from './auth/auth.module';
 import { Auth0Module } from './infrastructure/auth0/auth0.module';
 import { RolesModule } from './interface/auth/roles.module';
-import { EvaluationTemplateModule } from './interface/http/evaluation-template.module';
-import { EvaluationModule } from './interface/http/evaluation.module';
-import { EvaluationAnswerModule } from './interface/http/evaluation-answer.module';
-import { EvaluationCategoryModule } from './interface/http/evaluation-category.module';
-import { EvaluationQuestionModule } from './interface/http/evaluation-question.module';
-import { EvaluationQuestionOptionModule } from './interface/http/evaluation-question-option.module';
-import { EvaluationScoreModule } from './interface/http/evaluation-score.module';
+import { EvaluationTemplateModule } from './interface/http/evaluation/evaluation-template.module';
+import { EvaluationModule } from './interface/http/evaluation/evaluation.module';
+import { EvaluationAnswerModule } from './interface/http/evaluation/evaluation-answer.module';
+import { EvaluationCategoryModule } from './interface/http/evaluation/evaluation-category.module';
+import { EvaluationQuestionModule } from './interface/http/evaluation/evaluation-question.module';
+import { EvaluationQuestionOptionModule } from './interface/http/evaluation/evaluation-question-option.module';
+import { EvaluationScoreModule } from './interface/http/evaluation/evaluation-score.module';
 
 @Module({
   imports: [
@@ -26,8 +26,8 @@ import { EvaluationScoreModule } from './interface/http/evaluation-score.module'
       blockDuration: 120000,
     }]),
     PrismaModule,
-    Auth0Module, 
-    AuthModule, 
+    Auth0Module,
+    AuthModule,
     UsersModule,
     RolesModule,
     EvaluationTemplateModule,

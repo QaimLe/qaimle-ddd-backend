@@ -1,12 +1,12 @@
 import { Body, Controller, Get, Param, Post, Put, Delete } from '@nestjs/common';
-import { Evaluation } from '../../core/domain/evaluation/evaluation.entity';
-import { CreateEvaluationUseCase } from '../../core/applications/evaluation/create-evaluation.usecase';
-import { GetEvaluationUseCase } from '../../core/applications/evaluation/get-evaluation.usecase';
-import { GetAllEvaluationsUseCase } from '../../core/applications/evaluation/get-all-evaluations.usecase';
-import { UpdateEvaluationUseCase } from '../../core/applications/evaluation/update-evaluation.usecase';
-import { DeleteEvaluationUseCase } from '../../core/applications/evaluation/delete-evaluation.usecase';
-import { CalculateScoreUseCase } from '../../core/applications/evaluation/calculate-score.usecase';
-import { FlagEvaluationUseCase } from '../../core/applications/evaluation/flag-evaluation.usecase';
+import { Evaluation } from '../../../core/domain/evaluation/evaluation.entity';
+import { CreateEvaluationUseCase } from '../../../core/applications/evaluation/create-evaluation.usecase';
+import { GetEvaluationUseCase } from '../../../core/applications/evaluation/get-evaluation.usecase';
+import { GetAllEvaluationsUseCase } from '../../../core/applications/evaluation/get-all-evaluations.usecase';
+import { UpdateEvaluationUseCase } from '../../../core/applications/evaluation/update-evaluation.usecase';
+import { DeleteEvaluationUseCase } from '../../../core/applications/evaluation/delete-evaluation.usecase';
+import { CalculateScoreUseCase } from '../../../core/applications/evaluation/calculate-score.usecase';
+import { FlagEvaluationUseCase } from '../../../core/applications/evaluation/flag-evaluation.usecase';
 // import { EditEvaluationUseCase } from '../../core/applications/evaluation/edit-evaluation.usecase';
 import { EvaluationAnswer } from 'src/core/domain/evaluation-answer/entities/evaluation-answer.entity';
 @Controller('evaluations')
@@ -34,7 +34,7 @@ export class EvaluationController {
         answers: EvaluationAnswer[];
     }): Promise<Evaluation> {
         return this.createUseCase.execute(body);
-    }
+    } 
 
     @Get()
     async findAll(): Promise<Evaluation[]> {

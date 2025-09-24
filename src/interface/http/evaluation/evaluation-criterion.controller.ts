@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { CreateEvaluationCriterionUseCase } from '../../core/applications/evaluation/create-evaluation-criterion.usecase';
-import { type CreateEvaluationCriterionDto } from '../../core/domain/evaluation/dto/create-evaluation-criterion.dto';
-import { FindCriteriaByCategoryUseCase } from '../../core/applications/evaluation/find-criteria-by-category.usecase';
+import { CreateEvaluationCriterionUseCase } from '../../../core/applications/evaluation/create-evaluation-criterion.usecase';
+import { type CreateEvaluationCriterionDto } from '../../../core/domain/evaluation/dto/create-evaluation-criterion.dto';
+import { FindCriteriaByCategoryUseCase } from '../../../core/applications/evaluation/find-criteria-by-category.usecase';
 
 @Controller('criteria')
 export class EvaluationCriterionController {

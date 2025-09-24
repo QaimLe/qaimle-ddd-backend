@@ -7,13 +7,11 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
 model User {
   id               String   @id @default(uuid())
-  auth0Id          String?   @unique
-  email            String    @unique
+  auth0Id          String?  @unique
+  email            String   @unique
   username         String
-  phone            String?   @unique
   nickname         String?
   fullName         String?
   gender           String?
@@ -23,29 +21,46 @@ model User {
   profession       String?
   city             String?
   personalEmail    String?
-  mobileVerified   Boolean   @default(false)
   loyaltyTier      String?
   subscriptionTier String?
   profileStatus    String?   @default("pending")
+  mobileVerified   Boolean   @default(false) // can be synced with primary phone
   createdAt        DateTime  @default(now())
+
   posts            Post[]
   roles            UserRole[]
   surveyResponses  SurveyResponse[]
   evaluations      Evaluation[]
   providerRequests ProviderRequest[]
   providerVotes    ProviderVote[]
-  reviews          CompanySubmission[] @relation("UserReviews") // back-reference
-  
-  pointsBalance   Int      @default(0)  // quick lookup
-  transactions    PointsTransaction[]
+  reviews          CompanySubmission[] @relation("UserReviews")
 
+  pointsBalance    Int      @default(0)
+  transactions     PointsTransaction[]
   userRewards      UserReward[]
 
+  deletedAt DateTime? 
+  membership Membership?
 
-  deletedAt DateTime? // no default needed, NULL by default
-  @@index([deletedAt], name: "idx_users_deletedat")
-
+  // 👇 New relation
+  phoneNumbers UserPhoneNumber[]
 }
+
+model UserPhoneNumber {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+
+  phone      String
+  isPrimary  Boolean  @default(false)
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  deletedAt  DateTime?
+
+  @@unique([phone])             // each phone must be unique globally
+  @@index([userId, isPrimary])  // optimize queries for primary phone
+}
+
 
 
 model Permission {
@@ -65,8 +80,103 @@ model RolePermission {
   permission  Permission @relation(fields: [permissionId], references: [id])
 
   @@id([permissionId, roleId]) // composite primary key
-deletedAt DateTime? // no default needed, NULL by default
+  deletedAt DateTime? // no default needed, NULL by default
 }
+
+// ----------------------------
+// Membership
+// ----------------------------
+model Membership {
+  id          String     @id @default(uuid())
+  userId      String     @unique // 👈 one active membership per user
+  tierId      Int
+  startDate   DateTime   @default(now())
+  endDate     DateTime?  // null = ongoing until canceled/expired
+  isActive    Boolean    @default(true)
+
+  user        User       @relation(fields: [userId], references: [id])
+  tier        MembershipTier @relation(fields: [tierId], references: [id])
+
+  
+  // 👇 back-relations
+  invoices    MembershipInvoice[]
+  couponRedemptions MembershipCouponRedemption[]
+  
+}
+
+// ----------------------------
+// Membership Tiers
+// ----------------------------
+model MembershipTier {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique // Bronze, Silver, Gold...
+  description String?
+  price       Float      // monthly/yearly fee
+  benefits    Json?      // flexible list of perks (e.g. {"support": "priority", "discount": 0.1})
+  createdAt   DateTime   @default(now())
+
+  memberships Membership[]
+  
+}
+
+// ----------------------------
+// Membership Invoice
+// ----------------------------
+model MembershipInvoice {
+  id             String   @id @default(uuid())
+  membershipId   String
+  issueDate      DateTime @default(now())
+  dueDate        DateTime
+  totalCents     Int
+  currency       String   @default("USD")
+  status         String   // "open" | "paid" | "failed" | "void"
+
+  membership     Membership @relation(fields: [membershipId], references: [id])
+  payments       MembershipPayment[]
+}
+
+// ----------------------------
+// Membership Payment
+// ----------------------------
+model MembershipPayment {
+  id          String   @id @default(uuid())
+  invoiceId   String
+  amountCents Int
+  currency    String   @default("USD")
+  status      String   // "succeeded" | "pending" | "failed" | "refunded"
+  provider    String   // "stripe", "paypal", "bank_transfer"
+  providerTx  String?  // external reference
+  createdAt   DateTime @default(now())
+
+  invoice     MembershipInvoice @relation(fields: [invoiceId], references: [id])
+}
+
+// ----------------------------
+// Coupon / Discount
+// ----------------------------
+model MembershipCoupon {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  description String?
+  discountPct Float    // e.g. 0.10 = 10% off
+  validFrom   DateTime
+  validTo     DateTime
+  isActive    Boolean  @default(true)
+
+  redemptions MembershipCouponRedemption[]
+}
+
+// Pivot table for coupon usage
+model MembershipCouponRedemption {
+  id             String   @id @default(uuid())
+  couponId       String
+  membershipId   String
+  redeemedAt     DateTime @default(now())
+
+  coupon         MembershipCoupon @relation(fields: [couponId], references: [id])
+  membership     Membership       @relation(fields: [membershipId], references: [id])
+}
+
 
 model Role {
   id          Int              @id @default(autoincrement())

@@ -1,10 +1,10 @@
 // src/interface/http/evaluation-answer.controller.ts
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { CreateEvaluationAnswerUseCase } from '../../core/applications/evaluation/create-evaluation-answer.usecase';
-import { EvaluationAnswer } from '../../core/domain/evaluation-answer/entities/evaluation-answer.entity';
-import { EvaluationAnswerRepository } from '../../infrastructure/persistence/evaluation-answer.repository';
-import { CreateEvaluationAnswerDto } from '../../core/domain/evaluation/dto/create-evaluation-answer.dto';
-import { EvaluationAnswerId } from '../../core/domain/evaluation-answer/value-objects/evaluation-answer-id.vo';
+import { CreateEvaluationAnswerUseCase } from '../../../core/applications/evaluation/create-evaluation-answer.usecase';
+import { EvaluationAnswer } from '../../../core/domain/evaluation-answer/entities/evaluation-answer.entity';
+import { EvaluationAnswerRepository } from '../../../infrastructure/persistence/evaluation-answer.repository';
+import { CreateEvaluationAnswerDto } from '../../../core/domain/evaluation/dto/create-evaluation-answer.dto';
+import { EvaluationAnswerId } from '../../../core/domain/evaluation-answer/value-objects/evaluation-answer-id.vo';
 @Controller('evaluation-answers')
 export class EvaluationAnswerController {
     constructor(

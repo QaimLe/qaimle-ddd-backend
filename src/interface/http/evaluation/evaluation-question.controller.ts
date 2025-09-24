@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { EvaluationQuestionRepository } from '../../infrastructure/persistence/evaluation-question.repository';
-import { type CreateEvaluationQuestionDto } from '../../core/domain/evaluation/dto/create-evaluation-question.dto';
-import { EvaluationQuestionId } from '../../core/domain/evaluation-question/value-objects/evaluation-question-id.vo';
+import { EvaluationQuestionRepository } from '../../../infrastructure/persistence/evaluation-question.repository';
+import { type CreateEvaluationQuestionDto } from '../../../core/domain/evaluation/dto/create-evaluation-question.dto';
+import { EvaluationQuestionId } from '../../../core/domain/evaluation-question/value-objects/evaluation-question-id.vo';
 import { EvaluationCriterionId } from 'src/core/domain/evaluation-criterion/value-objects/evaluation-criterion-id.vo';
 @Controller('evaluation-questions')
 export class EvaluationQuestionController {

@@ -1,6 +1,6 @@
 // src/interface/http/evaluation-score/evaluation-score.controller.ts
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { PublishMonthlyScoresUseCase } from '../../core/applications/evaluation-score/publish-monthly-scores.usecase';
+import { PublishMonthlyScoresUseCase } from '../../../core/applications/evaluation-score/publish-monthly-scores.usecase';
 
 @Controller('evaluation-scores')
 export class EvaluationScoreController {

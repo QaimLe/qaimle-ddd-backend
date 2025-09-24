@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Param, Post, Put, Delete } from '@nestjs/common';
-import { CreateEvaluationTemplateUseCase } from '../../core/applications/evaluation/create-evaluation-template.usecase';
-import { GetAllEvaluationTemplatesUseCase } from '../../core/applications/evaluation/get-all-evaluation-templates.usecase';
-import { GetEvaluationTemplateUseCase } from '../../core/applications/evaluation/get-evaluation-template.usecase';
-import { EvaluationTemplate } from '../../core/domain/evaluation-template/evaluation-template.entity';
-import { EvaluationTemplateRepository } from '../../infrastructure/persistence/evaluation-template.repository';
+import { CreateEvaluationTemplateUseCase } from '../../../core/applications/evaluation/create-evaluation-template.usecase';
+import { GetAllEvaluationTemplatesUseCase } from '../../../core/applications/evaluation/get-all-evaluation-templates.usecase';
+import { GetEvaluationTemplateUseCase } from '../../../core/applications/evaluation/get-evaluation-template.usecase';
+import { EvaluationTemplate } from '../../../core/domain/evaluation-template/evaluation-template.entity';
+import { EvaluationTemplateRepository } from '../../../infrastructure/persistence/evaluation-template.repository';
 
 @Controller('evaluation-templates')
 export class EvaluationTemplateController {

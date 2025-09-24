@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { EvaluationQuestionRepository } from '../../infrastructure/persistence/evaluation-question.repository';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { EvaluationQuestionRepository } from '../../../infrastructure/persistence/evaluation-question.repository';
 import { EvaluationQuestionController } from './evaluation-question.controller';
 
 @Module({

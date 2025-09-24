@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { CreateEvaluationCategoryUseCase } from '../../core/applications/evaluation/create-evaluation-category.usecase';
-import { EvaluationCategory } from '../../core/domain/evaluation-category/evaluation-category.entity';
-import { EvaluationCategoryRepository } from '../../infrastructure/persistence/evaluation-category.repository';
+import { CreateEvaluationCategoryUseCase } from '../../../core/applications/evaluation/create-evaluation-category.usecase';
+import { EvaluationCategory } from '../../../core/domain/evaluation-category/evaluation-category.entity';
+import { EvaluationCategoryRepository } from '../../../infrastructure/persistence/evaluation-category.repository';
 
 @Controller('evaluation-categories')
 export class EvaluationCategoryController {
