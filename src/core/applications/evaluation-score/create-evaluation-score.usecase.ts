@@ -10,7 +10,7 @@ export class CreateEvaluationScoreUseCase {
 
     async execute(command: {
         providerId: number;
-        sectorId: number;
+        sectorId: string;
         month: Date;
         scorePercentage: number;
         rankingPosition?: number;

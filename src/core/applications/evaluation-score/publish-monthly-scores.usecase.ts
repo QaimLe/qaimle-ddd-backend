@@ -4,7 +4,7 @@ import { EvaluationScoreRepository } from "../../../infrastructure/persistence/e
 export class PublishMonthlyScoresUseCase {
     constructor(private readonly scoreRepo: EvaluationScoreRepository) { }
 
-    async execute(month: Date, sectorId: number) {
+    async execute(month: Date, sectorId: string) {
         // 1️⃣ Fetch all scores for the sector and month
         const scores = await this.scoreRepo.findByMonthAndSector(month, sectorId);
 

@@ -7,13 +7,13 @@ export class EvaluationScoreController {
     constructor(private readonly publishScores: PublishMonthlyScoresUseCase) { }
 
     @Post('publish')
-    async publishMonthly(@Body() body: { month: string; sectorId: number }) {
+    async publishMonthly(@Body() body: { month: string; sectorId: string }) {
         const result = await this.publishScores.execute(new Date(body.month), body.sectorId);
         return { success: true, publishedCount: result.length };
     }
 
     @Get(':sectorId/:month')
-    async getBySectorAndMonth(@Param('sectorId') sectorId: number, @Param('month') month: string) {
+    async getBySectorAndMonth(@Param('sectorId') sectorId: string, @Param('month') month: string) {
         return this.publishScores.repository.findByMonthAndSector(new Date(month), sectorId);
     }
 }

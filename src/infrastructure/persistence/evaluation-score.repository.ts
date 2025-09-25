@@ -53,7 +53,7 @@ export class EvaluationScoreRepository {
     }
 
     // Fetch all scores for a given sector and month
-    async findByMonthAndSector(month: Date, sectorId: number): Promise<EvaluationScore[]> {
+    async findByMonthAndSector(month: Date, sectorId: string): Promise<EvaluationScore[]> {
         const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
         const endOfMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0);
 

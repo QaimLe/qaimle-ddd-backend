@@ -17,6 +17,7 @@ import { EvaluationCategoryModule } from './interface/http/evaluation/evaluation
 import { EvaluationQuestionModule } from './interface/http/evaluation/evaluation-question.module';
 import { EvaluationQuestionOptionModule } from './interface/http/evaluation/evaluation-question-option.module';
 import { EvaluationScoreModule } from './interface/http/evaluation/evaluation-score.module';
+import { SectorModule } from './interface/http/sector/sector.module';
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { EvaluationScoreModule } from './interface/http/evaluation/evaluation-sc
     EvaluationCategoryModule,
     EvaluationQuestionModule,
     EvaluationQuestionOptionModule,
-    EvaluationScoreModule
+    EvaluationScoreModule,
+    SectorModule
 
   ],
   controllers: [AppController],

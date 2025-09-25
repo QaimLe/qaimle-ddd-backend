@@ -5,7 +5,7 @@ export class EvaluationScore {
     private constructor(
         public readonly id: EvaluationScoreId,
         public readonly providerId: number,
-        public readonly sectorId: number,
+        public readonly sectorId: string,
         public readonly month: Date,
         public readonly scorePercentage: number,
         public  rankingPosition?: number,
@@ -17,7 +17,7 @@ export class EvaluationScore {
     static create(props: {
         id?: EvaluationScoreId;
         providerId: number;
-        sectorId: number;
+        sectorId: string;
         month: Date;
         scorePercentage: number;
         rankingPosition?: number;

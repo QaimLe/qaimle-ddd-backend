@@ -2,7 +2,7 @@
 export class EvaluationTemplate {
     constructor(
         public readonly id: number | null,
-        public readonly sectorId: number,
+        public readonly sectorId: string,
         public readonly version: number,
         public readonly effectiveFrom: Date,
         public readonly isActive: boolean,

@@ -18,7 +18,7 @@ export class EvaluationTemplateController {
     async create(
         @Body()
         body: {
-            sectorId: number;
+            sectorId: string;
             version: number;
             effectiveFrom: string; // ISO string
             isActive?: boolean;

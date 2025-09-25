@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { IRoleProvider } from '../../auth/role.provider';
 import { Auth0Service } from './auth0.service';
 

@@ -41,9 +41,14 @@ model User {
 
   deletedAt DateTime? 
   membership Membership?
-
-  // 👇 New relation
   phoneNumbers UserPhoneNumber[]
+  sessions                 Session[]
+  auditLogs                AuditLog[]
+  paymentMethods           PaymentMethod[]
+  transactionLogs          TransactionLog[]
+  notifications            Notification[]
+  notificationPreferences  NotificationPreference[]
+  userActivities           UserActivity[]
 }
 
 model UserPhoneNumber {
@@ -101,80 +106,59 @@ model Membership {
   // 👇 back-relations
   invoices    MembershipInvoice[]
   couponRedemptions MembershipCouponRedemption[]
+  changeLogs  MembershipChangeLog[]
   
 }
+
+model MembershipChangeLog {
+  id            String   @id @default(uuid())
+  membershipId  String
+  oldTierId     Int?
+  newTierId     Int?
+  changedAt     DateTime @default(now())
+
+  membership Membership @relation(fields: [membershipId], references: [id])
+  oldTier    MembershipTier? @relation("OldTier", fields: [oldTierId], references: [id])
+  newTier    MembershipTier? @relation("NewTier", fields: [newTierId], references: [id])
+}
+
 
 // ----------------------------
 // Membership Tiers
 // ----------------------------
 model MembershipTier {
   id          Int        @id @default(autoincrement())
-  name        String     @unique // Bronze, Silver, Gold...
+  name        String     @unique
   description String?
-  price       Float      // monthly/yearly fee
-  benefits    Json?      // flexible list of perks (e.g. {"support": "priority", "discount": 0.1})
+  price       Float
+  benefits    Json?
   createdAt   DateTime   @default(now())
 
   memberships Membership[]
-  
+
+  // 👇 Add explicit back-relations
+  oldTierChangeLogs MembershipChangeLog[] @relation("OldTier")
+  newTierChangeLogs MembershipChangeLog[] @relation("NewTier")
 }
 
-// ----------------------------
-// Membership Invoice
-// ----------------------------
-model MembershipInvoice {
-  id             String   @id @default(uuid())
-  membershipId   String
-  issueDate      DateTime @default(now())
-  dueDate        DateTime
-  totalCents     Int
-  currency       String   @default("USD")
-  status         String   // "open" | "paid" | "failed" | "void"
 
-  membership     Membership @relation(fields: [membershipId], references: [id])
-  payments       MembershipPayment[]
-}
 
 // ----------------------------
 // Membership Payment
 // ----------------------------
+
 model MembershipPayment {
-  id          String   @id @default(uuid())
-  invoiceId   String
-  amountCents Int
-  currency    String   @default("USD")
-  status      String   // "succeeded" | "pending" | "failed" | "refunded"
-  provider    String   // "stripe", "paypal", "bank_transfer"
-  providerTx  String?  // external reference
-  createdAt   DateTime @default(now())
+  id            String      @id @default(uuid())
+  invoiceId     String
+  provider      String       // Stripe, PayPal, Wallet...
+  providerTxnId String?
+  amount        Float
+  status        String       @default("pending") // pending, success, failed
+  createdAt     DateTime     @default(now())
 
-  invoice     MembershipInvoice @relation(fields: [invoiceId], references: [id])
-}
+  invoice       MembershipInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
-// ----------------------------
-// Coupon / Discount
-// ----------------------------
-model MembershipCoupon {
-  id          String   @id @default(uuid())
-  code        String   @unique
-  description String?
-  discountPct Float    // e.g. 0.10 = 10% off
-  validFrom   DateTime
-  validTo     DateTime
-  isActive    Boolean  @default(true)
-
-  redemptions MembershipCouponRedemption[]
-}
-
-// Pivot table for coupon usage
-model MembershipCouponRedemption {
-  id             String   @id @default(uuid())
-  couponId       String
-  membershipId   String
-  redeemedAt     DateTime @default(now())
-
-  coupon         MembershipCoupon @relation(fields: [couponId], references: [id])
-  membership     Membership       @relation(fields: [membershipId], references: [id])
+  @@index([invoiceId])
 }
 
 
@@ -256,7 +240,7 @@ model SurveyResponse {
   survey   Survey @relation(fields: [surveyId], references: [id])
   user     User   @relation(fields: [userId], references: [id])
   answers  SurveyAnswer[]
-deletedAt DateTime? // no default needed, NULL by default
+  deletedAt DateTime? // no default needed, NULL by default
 }
 
 model SurveyAnswer {
@@ -268,12 +252,12 @@ model SurveyAnswer {
 
   response SurveyResponse  @relation(fields: [responseId], references: [id])
   question SurveyQuestion  @relation(fields: [questionId], references: [id])
-deletedAt DateTime? // no default needed, NULL by default
+  deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Sectors
 model Sector {
-  id          Int                 @id @default(autoincrement())
+  id          String   @id @default(uuid())
   name        String
   description String?
   createdAt   DateTime            @default(now())
@@ -281,14 +265,14 @@ model Sector {
   templates   EvaluationTemplate[]
   requests    ProviderRequest[]
   scores      EvaluationScore[]
-deletedAt DateTime? // no default needed, NULL by default
+  deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Service Providers
 model ServiceProvider {
   id          Int       @id @default(autoincrement())
   name        String
-  sectorId    Int
+  sectorId    String
   description String?
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
@@ -296,13 +280,13 @@ model ServiceProvider {
   sector      Sector     @relation(fields: [sectorId], references: [id])
   evaluations Evaluation[]
   scores      EvaluationScore[]
-deletedAt DateTime? // no default needed, NULL by default
+  deletedAt DateTime? // no default needed, NULL by default
 }
 
 // Evaluation Templates
 model EvaluationTemplate {
   id         Int       @id @default(autoincrement())
-  sectorId   Int
+  sectorId   String
   version    Int
   effectiveFrom DateTime
   isActive   Boolean   @default(true)
@@ -324,7 +308,7 @@ model EvaluationCategory {
 
   template   EvaluationTemplate  @relation(fields: [templateId], references: [id])
   criteria   EvaluationCriterion[]
-deletedAt DateTime? // no default needed, NULL by default
+  deletedAt DateTime? // no default needed, NULL by default
 }
 
 
@@ -406,7 +390,7 @@ model EvaluationQuestion {
 model EvaluationScore {
   id                     Int       @id @default(autoincrement())
   providerId             Int
-  sectorId               Int
+  sectorId               String
   month                  DateTime
   scorePercentage        Float
   rankingPosition        Int?
@@ -421,7 +405,7 @@ deletedAt DateTime? // no default needed, NULL by default
 // Provider Requests
 model ProviderRequest {
   id             Int       @id @default(autoincrement())
-  sectorId       Int
+  sectorId       String
   providerName   String
   submittedBy    String
   status         String    @default("pending")
@@ -528,3 +512,183 @@ model UserReward {
   deletedAt DateTime? // no default needed, NULL by default
 }
 
+
+// ----------------------------
+// Auth & Security
+// ----------------------------
+model Session {
+  id          String   @id @default(uuid())
+  userId      String
+  refreshToken String  @unique
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  deletedAt   DateTime?
+
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  action      String
+  details     Json?
+  createdAt   DateTime @default(now())
+
+  user        User?    @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
+}
+
+// ----------------------------
+// Membership / Billing
+// ----------------------------
+model MembershipInvoice {
+  id            String      @id @default(uuid())
+  membershipId  String
+  amount        Float
+  currency      String
+  dueDate       DateTime
+  status        String       @default("unpaid") // unpaid, paid, failed, refunded
+  createdAt     DateTime     @default(now())
+
+  membership    Membership   @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  payments      MembershipPayment[]
+
+  @@index([membershipId])
+}
+
+
+
+model MembershipCoupon {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  description   String?
+  discountType  String   // percent or fixed
+  discountValue Float
+  validFrom     DateTime
+  validUntil    DateTime?
+  maxRedemptions Int?
+  createdAt     DateTime @default(now())
+
+  redemptions   MembershipCouponRedemption[]
+}
+
+model MembershipCouponRedemption {
+  id            String   @id @default(uuid())
+  couponId      String
+  membershipId  String
+  redeemedAt    DateTime @default(now())
+
+  coupon        MembershipCoupon @relation(fields: [couponId], references: [id])
+  membership    Membership       @relation(fields: [membershipId], references: [id])
+
+  @@index([couponId])
+  @@index([membershipId])
+}
+
+
+// ----------------------------
+// Financial
+// ----------------------------
+model PaymentMethod {
+  id          String   @id @default(uuid())
+  userId      String
+  type        String   // card, paypal, wallet
+  details     Json?    // e.g., last4 digits, provider ID
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+  @@index([userId, isDefault])
+}
+
+model TransactionLog {
+  id          String   @id @default(uuid())
+  userId      String
+  type        String   // credit, debit, refund
+  amount      Float
+  currency    String
+  reference   String?  // external reference
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
+}
+
+// ----------------------------
+// Analytics / Tracking
+// ----------------------------
+model UserActivity {
+  id          String   @id @default(uuid())
+  userId      String?
+  action      String   // login, view, click
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  user        User?    @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
+}
+
+model EventLog {
+  id          String   @id @default(uuid())
+  type        String
+  payload     Json
+  createdAt   DateTime @default(now())
+  processedAt DateTime?
+}
+
+// ----------------------------
+// Notifications
+// ----------------------------
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  type        String   // email, sms, push
+  title       String
+  message     String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+  @@index([userId, isRead])
+}
+
+model NotificationPreference {
+  id          String   @id @default(uuid())
+  userId      String
+  channel     String   // email, sms, push
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+  @@unique([userId, channel])
+}
+
+// ----------------------------
+// Operational
+// ----------------------------
+model SystemConfig {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       Json
+  createdAt   DateTime @default(now())
+}
+
+model ErrorLog {
+  id          String   @id @default(uuid())
+  message     String
+  stack       String?
+  context     Json?
+  createdAt   DateTime @default(now())
+}
+
+model JobQueue {
+  id          String   @id @default(uuid())
+  type        String
+  payload     Json
+  status      String   @default("pending") // pending, processing, done, failed
+  scheduledAt DateTime?
+  createdAt   DateTime @default(now())
+  processedAt DateTime?
+}
